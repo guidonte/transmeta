@@ -18,35 +18,35 @@ from transmeta import get_real_fieldname
 
 
 def ask_for_default_language():
-    print 'Available languages:'
+    print('Available languages:')
     for i, lang_tuple in enumerate(settings.LANGUAGES):
-        print '\t%d. %s' % (i+1, lang_tuple[1])
-    print 'Choose a language in which to put current untranslated data.'
+        print('\t%d. %s' % (i+1, lang_tuple[1]))
+    print('Choose a language in which to put current untranslated data.')
     while True:
         prompt = "What's the language of current data? (1-%s) " % len(lang_tuple)
-        answer = raw_input(prompt).strip()
+        answer = input(prompt).strip()
         if answer != '':
             try:
                 index = int(answer) - 1
                 if index < 0 or index > len(settings.LANGUAGES):
-                    print "That's not a valid number"
+                    print("That's not a valid number")
                 else:
                     return settings.LANGUAGES[index][0]
             except ValueError:
-                print "Please write a number"
+                print("Please write a number")
 
 
 def ask_for_confirmation(sql_sentences, model_full_name):
-    print '\nSQL to synchronize "%s" schema:' % model_full_name
+    print('\nSQL to synchronize "%s" schema:' % model_full_name)
     for sentence in sql_sentences:
-        print '   %s' % sentence
+        print('   %s' % sentence)
     while True:
         prompt = '\nAre you sure that you want to execute the previous SQL: (y/n) [n]: '
-        answer = raw_input(prompt).strip()
+        answer = input(prompt).strip()
         if answer == '':
             return False
         elif answer not in ('y', 'n', 'yes', 'no'):
-            print 'Please answer yes or no'
+            print('Please answer yes or no')
         elif answer == 'y' or answer == 'yes':
             return True
         else:
@@ -54,8 +54,8 @@ def ask_for_confirmation(sql_sentences, model_full_name):
 
 
 def print_missing_langs(missing_langs, field_name, model_name):
-    print '\nMissing languages in "%s" field from "%s" model: %s' % \
-        (field_name, model_name, ", ".join(missing_langs))
+    print('\nMissing languages in "%s" field from "%s" model: %s' % \
+        (field_name, model_name, ", ".join(missing_langs)))
 
 
 class Command(BaseCommand):
@@ -88,19 +88,19 @@ class Command(BaseCommand):
                         sql_sentences = self.get_sync_sql(field_name, missing_langs, model)
                         execute_sql = ask_for_confirmation(sql_sentences, model_full_name)
                         if execute_sql:
-                            print 'Executing SQL...',
+                            print('Executing SQL...', end=' ')
                             for sentence in sql_sentences:
                                 self.cursor.execute(sentence)
                                 # commit
                                 transaction.commit()
-                            print 'Done'
+                            print('Done')
                         else:
-                            print 'SQL not executed'
+                            print('SQL not executed')
 
         transaction.leave_transaction_management()
 
         if not found_missing_fields:
-            print '\nNo new translatable fields detected'
+            print('\nNo new translatable fields detected')
 
     def get_table_fields(self, db_table):
         """ get table fields from schema """
